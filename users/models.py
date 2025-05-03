@@ -51,3 +51,37 @@ class CustomUser(AbstractUser):
     
     def is_employee(self):
         return self.role == 'employee'
+
+class UserProfile(models.Model):
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+
+    MARITAL_STATUS_CHOICES = [
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('divorced', 'Divorced'),
+        ('widowed', 'Widowed'),
+    ]
+
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    address = models.TextField(blank=True)
+    emergency_contact_name = models.CharField(max_length=100, blank=True)
+    emergency_contact_relationship = models.CharField(max_length=50, blank=True)
+    emergency_contact_phone = models.CharField(max_length=15, blank=True)
+    emergency_contact_address = models.TextField(blank=True)
+    blood_group = models.CharField(max_length=5, blank=True)
+    nationality = models.CharField(max_length=50, blank=True)
+    marital_status = models.CharField(max_length=10, choices=MARITAL_STATUS_CHOICES, blank=True)
+    religion = models.CharField(max_length=50, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+
+    class Meta:
+        ordering = ['user__first_name', 'user__last_name']
+
+    def __str__(self):
+        return f"{self.user.get_full_name()}'s Profile"
