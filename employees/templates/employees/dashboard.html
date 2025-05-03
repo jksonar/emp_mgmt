@@ -21,7 +21,7 @@
                 <div class="card-body">
                     <p><strong>Email:</strong> {{ user.email }}</p>
                     <p><strong>Last Login:</strong> {{ user.last_login|date:"d M Y H:i" }}</p>
-                    <a href="{% url 'users:profile' %}" class="btn btn-primary">View Profile</a>
+                    <a href="{% url 'employees:profile' %}" class="btn btn-primary">View Profile</a>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="card-body">
                     <p>You have {{ documents.count }} document(s)</p>
-                    <a href="{% url 'users:document_list' %}" class="btn btn-primary">View Documents</a>
+                    <a href="{% url 'employees:document_list' %}" class="btn btn-primary">View Documents</a>
                 </div>
             </div>
         </div>

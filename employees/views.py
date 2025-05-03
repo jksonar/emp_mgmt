@@ -143,6 +143,10 @@ def work_history_delete(request, pk):
     messages.success(request, 'Work history deleted successfully.')
     return redirect('employees:work_history_list')
 
+@login_required
+def dashboard(request):
+    return render(request, 'employees/dashboard.html')
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -152,7 +156,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'Welcome back!')
-            return redirect('dashboard')
+            return redirect('employees:dashboard')
         else:
             messages.error(request, 'Invalid username or password.')
     
@@ -164,6 +168,4 @@ def logout_view(request):
     messages.info(request, 'You have been logged out.')
     return redirect('login')
 
-@login_required
-def dashboard(request):
-    return render(request, 'employees/dashboard.html')
+
