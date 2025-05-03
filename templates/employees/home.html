@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Welcome, {{ user.get_full_name|default:user.username }}!</h1>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="row">
+        <!-- Quick Stats -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Employees</h5>
+                    <h2 class="card-text">{{ total_employees }}</h2>
+                    <a href="{% url 'employees:employee_list' %}" class="text-white text-decoration-none">View All</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Present Today</h5>
+                    <h2 class="card-text">{{ present_today }}</h2>
+                    <a href="{% url 'attendance:daily_report' %}" class="text-white text-decoration-none">View Details</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Leaves</h5>
+                    <h2 class="card-text">{{ pending_leaves }}</h2>
+                    <a href="{% url 'leave:pending_list' %}" class="text-white text-decoration-none">View All</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Departments</h5>
+                    <h2 class="card-text">{{ total_departments }}</h2>
+                    <a href="{% url 'departments:department_list' %}" class="text-white text-decoration-none">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Attendance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attendance in recent_attendance %}
+                                <tr>
+                                    <td>{{ attendance.employee.get_full_name }}</td>
+                                    <td>{{ attendance.date }}</td>
+                                    <td>{{ attendance.get_status_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Leaves</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in recent_leaves %}
+                                <tr>
+                                    <td>{{ leave.employee.get_full_name }}</td>
+                                    <td>{{ leave.leave_type.name }}</td>
+                                    <td>{{ leave.get_status_display }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                Please <a href="{% url 'login' %}" class="alert-link">login</a> to access the dashboard.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -35,12 +35,12 @@
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'users:dashboard' %}">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'employees:dashboard' %}">
                                 <i class="bi bi-speedometer2"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'employees' in request.path %}active{% endif %}" href="{% url 'employees:employee_list' %}">
+                            <a class="nav-link {% if 'employees' in request.path %}active{% endif %}" href="{% url 'employees:user_list' %}">
                                 <i class="bi bi-people"></i> Employees
                             </a>
                         </li>
@@ -55,7 +55,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'leave' in request.path %}active{% endif %}" href="{% url 'leave:application_list' %}">
+                            <a class="nav-link {% if 'leave' in request.path %}active{% endif %}" href="{% url 'leave:leave_list' %}">
                                 <i class="bi bi-calendar-event"></i> Leave
                             </a>
                         </li>
@@ -88,10 +88,10 @@
                                 <i class="bi bi-person-circle"></i> {{ request.user.get_full_name }}
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="userMenu">
-                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'users:profile_update' %}">Settings</a></li>
+                                <li><a class="dropdown-item" href="{% url 'employees:profile' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'employees:profile_update' %}">Settings</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'users:logout' %}">Logout</a></li>
+                                <li><a class="dropdown-item" href="{% url 'employees:logout' %}">Logout</a></li>
                             </ul>
                         </div>
                     </div>
