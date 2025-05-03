@@ -5,7 +5,7 @@ from django.utils import timezone
 from employees.models import CustomUser, Department
 from attendance.models import Attendance
 from leave.models import LeaveApplication, LeaveBalance
-from payroll.models import PayrollRecord
+from payroll.models import Payroll
 from performance.models import PerformanceReview, PerformanceGoal
 import csv
 from datetime import datetime
@@ -98,7 +98,7 @@ def payroll_monthly_report(request):
     """Generate monthly payroll report"""
     month = request.GET.get('month', timezone.now().month)
     year = request.GET.get('year', timezone.now().year)
-    payrolls = PayrollRecord.objects.filter(
+    payrolls = Payroll.objects.filter(
         month__month=month,
         month__year=year
     )
@@ -115,7 +115,7 @@ def payroll_employee_report(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    payrolls = PayrollRecord.objects.all()
+    payrolls = Payroll.objects.all()
     if employee_id:
         payrolls = payrolls.filter(employee_id=employee_id)
     if start_date:
@@ -218,11 +218,11 @@ def export_payroll(request):
     writer = csv.writer(response)
     writer.writerow(['Employee ID', 'Name', 'Month', 'Basic Salary', 'Status'])
     
-    payrolls = PayrollRecord.objects.all()
+    payrolls = Payroll.objects.all()
     for payroll in payrolls:
         writer.writerow([
             payroll.employee.employee_id,
-            payroll.employee.user.get_full_name(),
+            payroll.employee.get_full_name(),
             payroll.month,
             payroll.basic_salary,
             payroll.status

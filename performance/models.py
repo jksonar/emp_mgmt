@@ -58,7 +58,7 @@ class PerformanceReview(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    employee = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='performance_reviews')
+    employee = models.ForeignKey('employees.CustomUser', on_delete=models.CASCADE, related_name='performance_reviews')
     cycle = models.ForeignKey(PerformanceCycle, on_delete=models.CASCADE, related_name='reviews')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     self_rating = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -111,7 +111,7 @@ class DevelopmentPlan(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    employee = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='development_plans')
+    employee = models.ForeignKey('employees.CustomUser', on_delete=models.CASCADE, related_name='development_plans')
     performance_review = models.ForeignKey(PerformanceReview, on_delete=models.CASCADE, related_name='development_plans')
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -136,7 +136,7 @@ class PerformanceGoal(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='performance_goals')
+    employee = models.ForeignKey('employees.CustomUser', on_delete=models.CASCADE, related_name='performance_goals')
     title = models.CharField(max_length=200)
     description = models.TextField()
     start_date = models.DateField()

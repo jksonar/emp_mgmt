@@ -26,7 +26,7 @@ class LeaveApplication(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    employee = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='leave_applications')
+    employee = models.ForeignKey('employees.CustomUser', on_delete=models.CASCADE, related_name='leave_applications')
     leave_type = models.ForeignKey(LeaveType, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -37,10 +37,10 @@ class LeaveApplication(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     # Approval chain
-    approved_by_team_lead = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='team_lead_approvals')
-    approved_by_team_manager = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='team_manager_approvals')
-    approved_by_senior_manager = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='senior_manager_approvals')
-    approved_by_hr = models.ForeignKey('users.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='hr_approvals')
+    approved_by_team_lead = models.ForeignKey('employees.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='team_lead_approvals')
+    approved_by_team_manager = models.ForeignKey('employees.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='team_manager_approvals')
+    approved_by_senior_manager = models.ForeignKey('employees.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='senior_manager_approvals')
+    approved_by_hr = models.ForeignKey('employees.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='hr_approvals')
     
     # Approval timestamps
     team_lead_approved_at = models.DateTimeField(null=True, blank=True)
@@ -60,7 +60,7 @@ class LeaveApplication(models.Model):
         super().save(*args, **kwargs)
 
 class LeaveBalance(models.Model):
-    employee = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='leave_balances')
+    employee = models.ForeignKey('employees.CustomUser', on_delete=models.CASCADE, related_name='leave_balances')
     leave_type = models.ForeignKey(LeaveType, on_delete=models.CASCADE)
     total_days = models.PositiveIntegerField(default=0)
     used_days = models.PositiveIntegerField(default=0)

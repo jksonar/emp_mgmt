@@ -20,7 +20,7 @@ def review_create(request):
         form = PerformanceReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-            review.employee = request.user.employee
+            review.employee = request.user
             review.save()
             return redirect('performance:review_detail', pk=review.pk)
     else:
@@ -86,7 +86,7 @@ def goal_create(request):
         form = PerformanceGoalForm(request.POST)
         if form.is_valid():
             goal = form.save(commit=False)
-            goal.employee = request.user.employee
+            goal.employee = request.user
             goal.save()
             return redirect('performance:goal_detail', pk=goal.pk)
     else:
