@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from departments.models import Department, Designation
+from django.utils import timezone
+import uuid
 
 class Employee(models.Model):
     GENDER_CHOICES = [
@@ -9,18 +11,61 @@ class Employee(models.Model):
         ('O', 'Other'),
     ]
     
+    MARITAL_STATUS_CHOICES = [
+        ('S', 'Single'),
+        ('M', 'Married'),
+        ('D', 'Divorced'),
+        ('W', 'Widowed'),
+    ]
+    
+    BLOOD_GROUP_CHOICES = [
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+    ]
+    
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='employee_profile')
     employee_id = models.CharField(max_length=20, unique=True)
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    marital_status = models.CharField(max_length=1, choices=MARITAL_STATUS_CHOICES, blank=True)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True)
+    nationality = models.CharField(max_length=50, blank=True)
+    religion = models.CharField(max_length=50, blank=True)
     address = models.TextField()
-    emergency_contact = models.CharField(max_length=15)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+    
+    # Emergency Contact
     emergency_contact_name = models.CharField(max_length=100)
+    emergency_contact_relationship = models.CharField(max_length=50, blank=True)
+    emergency_contact_phone = models.CharField(max_length=15)
+    emergency_contact_address = models.TextField(blank=True)
+    
+    # Bank Details
     bank_account_number = models.CharField(max_length=20, blank=True)
     bank_name = models.CharField(max_length=100, blank=True)
     bank_branch = models.CharField(max_length=100, blank=True)
+    bank_ifsc_code = models.CharField(max_length=11, blank=True)
+    
+    # Government IDs
     pan_number = models.CharField(max_length=10, blank=True)
     aadhar_number = models.CharField(max_length=12, blank=True)
+    passport_number = models.CharField(max_length=20, blank=True)
+    passport_expiry = models.DateField(null=True, blank=True)
+    
+    # Additional Information
+    joining_date = models.DateField(null=True, blank=True)
+    probation_period = models.IntegerField(default=3)  # in months
+    notice_period = models.IntegerField(default=30)  # in days
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -45,4 +90,55 @@ class Employee(models.Model):
                 
             self.employee_id = f"{department_code}{year}{str(new_number).zfill(4)}"
         
+        super().save(*args, **kwargs)
+
+class EmployeeDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('resume', 'Resume'),
+        ('offer_letter', 'Offer Letter'),
+        ('joining_letter', 'Joining Letter'),
+        ('experience_letter', 'Experience Letter'),
+        ('id_proof', 'ID Proof'),
+        ('address_proof', 'Address Proof'),
+        ('educational_certificate', 'Educational Certificate'),
+        ('other', 'Other'),
+    ]
+    
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES)
+    title = models.CharField(max_length=100)
+    file = models.FileField(upload_to='employee_documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_documents')
+    verified_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.employee.user.get_full_name()} - {self.get_document_type_display()}"
+
+class WorkHistory(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='work_history')
+    company_name = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    is_current = models.BooleanField(default=False)
+    job_description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name_plural = 'Work Histories'
+    
+    def __str__(self):
+        return f"{self.employee.user.get_full_name()} - {self.company_name}"
+    
+    def save(self, *args, **kwargs):
+        if self.is_current:
+            # Update other work histories to not be current
+            WorkHistory.objects.filter(employee=self.employee, is_current=True).exclude(pk=self.pk).update(is_current=False)
         super().save(*args, **kwargs)

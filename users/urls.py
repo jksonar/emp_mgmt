@@ -17,4 +17,14 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/update/', views.profile_update, name='profile_update'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    
+    # Document URLs
+    path('documents/', views.DocumentListView.as_view(), name='document_list'),
+    path('documents/upload/', views.upload_document, name='upload_document'),
+    path('documents/<int:document_id>/verify/', views.verify_document, name='verify_document'),
+    
+    # Two-Factor Authentication URLs
+    path('2fa/setup/', views.setup_2fa, name='setup_2fa'),
+    path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
+    path('2fa/disable/', views.disable_2fa, name='disable_2fa'),
 ] 

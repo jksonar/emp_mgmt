@@ -1,76 +1,143 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile - Employee Management System{% endblock %}
+{% block title %}Profile{% endblock %}
 
-{% block page_title %}My Profile{% endblock %}
+{% block page_title %}Profile{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-4">
         <div class="card mb-4">
-            <div class="card-body text-center">
-                {% if profile.avatar %}
-                <img src="{{ profile.avatar.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                {% else %}
-                <div class="rounded-circle bg-secondary mb-3 mx-auto" style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-person-fill" style="font-size: 5rem; color: white;"></i>
+            <div class="card-header">
+                <h5 class="card-title mb-0">Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ user.get_full_name }}" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+                            <span class="display-4">{{ user.get_full_name|first }}</span>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                <h5 class="card-title">{{ profile.user.get_full_name }}</h5>
-                <p class="text-muted">{{ profile.user.email }}</p>
-                <a href="{% url 'users:profile_update' %}" class="btn btn-primary">
-                    <i class="bi bi-pencil"></i> Edit Profile
-                </a>
+                
+                <h6 class="mb-3">{{ user.get_full_name }}</h6>
+                <p class="mb-1"><strong>Employee ID:</strong> {{ user.employee_id }}</p>
+                <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                <p class="mb-1"><strong>Phone:</strong> {{ user.phone_number }}</p>
+                <p class="mb-1"><strong>Department:</strong> {{ user.department }}</p>
+                <p class="mb-1"><strong>Designation:</strong> {{ user.designation }}</p>
+                <p class="mb-1"><strong>Date of Joining:</strong> {{ user.date_of_joining }}</p>
+                
+                <div class="mt-3">
+                    <a href="{% url 'users:profile_update' %}" class="btn btn-primary btn-sm">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Security</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Two-Factor Authentication</span>
+                    {% if user.two_factor_enabled %}
+                        <span class="badge bg-success">Enabled</span>
+                    {% else %}
+                        <span class="badge bg-danger">Disabled</span>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    {% if user.two_factor_enabled %}
+                        <a href="{% url 'users:disable_2fa' %}" class="btn btn-danger btn-sm">Disable 2FA</a>
+                    {% else %}
+                        <a href="{% url 'users:setup_2fa' %}" class="btn btn-primary btn-sm">Enable 2FA</a>
+                    {% endif %}
+                    <a href="{% url 'users:password_change' %}" class="btn btn-secondary btn-sm">Change Password</a>
+                </div>
             </div>
         </div>
     </div>
+    
     <div class="col-md-8">
         <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Documents</h5>
+                <a href="{% url 'users:upload_document' %}" class="btn btn-primary btn-sm">Upload Document</a>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Personal Information</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Full Name:</strong> {{ profile.user.get_full_name }}</p>
-                        <p><strong>Email:</strong> {{ profile.user.email }}</p>
-                        <p><strong>Phone:</strong> {{ profile.phone|default:"Not provided" }}</p>
+                {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Title</th>
+                                    <th>Uploaded</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in documents %}
+                                    <tr>
+                                        <td>{{ document.get_document_type_display }}</td>
+                                        <td>{{ document.title }}</td>
+                                        <td>{{ document.uploaded_at|date:"d M Y" }}</td>
+                                        <td>
+                                            {% if document.is_verified %}
+                                                <span class="badge bg-success">Verified</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ document.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">View</a>
+                                            {% if user.is_hr_manager and not document.is_verified %}
+                                                <a href="{% url 'users:verify_document' document.id %}" class="btn btn-sm btn-outline-success">Verify</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col-md-6">
-                        <p><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:"F d, Y"|default:"Not provided" }}</p>
-                        <p><strong>Gender:</strong> {{ profile.get_gender_display|default:"Not provided" }}</p>
-                        <p><strong>Address:</strong> {{ profile.address|default:"Not provided" }}</p>
-                    </div>
-                </div>
+                {% else %}
+                    <p class="text-muted">No documents uploaded yet.</p>
+                {% endif %}
             </div>
         </div>
-
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Emergency Contact</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Name:</strong> {{ profile.emergency_contact_name|default:"Not provided" }}</p>
-                        <p><strong>Relationship:</strong> {{ profile.emergency_contact_relationship|default:"Not provided" }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Phone:</strong> {{ profile.emergency_contact_phone|default:"Not provided" }}</p>
-                        <p><strong>Address:</strong> {{ profile.emergency_contact_address|default:"Not provided" }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
         <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Additional Information</h5>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Additional Information</h5>
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Blood Group:</strong> {{ profile.blood_group|default:"Not provided" }}</p>
-                        <p><strong>Nationality:</strong> {{ profile.nationality|default:"Not provided" }}</p>
+                        <h6>Personal Details</h6>
+                        <p class="mb-1"><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:"d M Y" }}</p>
+                        <p class="mb-1"><strong>Gender:</strong> {{ profile.get_gender_display }}</p>
+                        <p class="mb-1"><strong>Marital Status:</strong> {{ profile.get_marital_status_display }}</p>
+                        <p class="mb-1"><strong>Nationality:</strong> {{ profile.nationality }}</p>
+                        <p class="mb-1"><strong>Religion:</strong> {{ profile.religion }}</p>
+                        <p class="mb-1"><strong>Blood Group:</strong> {{ profile.blood_group }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Marital Status:</strong> {{ profile.get_marital_status_display|default:"Not provided" }}</p>
-                        <p><strong>Religion:</strong> {{ profile.religion|default:"Not provided" }}</p>
+                        <h6>Emergency Contact</h6>
+                        <p class="mb-1"><strong>Name:</strong> {{ profile.emergency_contact_name }}</p>
+                        <p class="mb-1"><strong>Relationship:</strong> {{ profile.emergency_contact_relationship }}</p>
+                        <p class="mb-1"><strong>Phone:</strong> {{ profile.emergency_contact_phone }}</p>
+                        <p class="mb-1"><strong>Address:</strong> {{ profile.emergency_contact_address }}</p>
                     </div>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Address</h6>
+                    <p>{{ profile.address }}</p>
                 </div>
             </div>
         </div>
