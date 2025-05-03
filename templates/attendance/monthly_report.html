@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Monthly Attendance Report - Employee Management System{% endblock %}
+
+{% block page_title %}Monthly Attendance Report{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Report for {{ month|date:"F Y" }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Employees</h6>
+                        <h3 class="mb-0">{{ total_employees }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Average Present</h6>
+                        <h3 class="mb-0">{{ avg_present|floatformat:1 }}%</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Average Absent</h6>
+                        <h3 class="mb-0">{{ avg_absent|floatformat:1 }}%</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Average Late</h6>
+                        <h3 class="mb-0">{{ avg_late|floatformat:1 }}%</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Present Days</th>
+                        <th>Absent Days</th>
+                        <th>Late Days</th>
+                        <th>Total Working Days</th>
+                        <th>Attendance %</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.user.get_full_name }}</td>
+                        <td>{{ employee.department.name }}</td>
+                        <td>{{ employee.present_days }}</td>
+                        <td>{{ employee.absent_days }}</td>
+                        <td>{{ employee.late_days }}</td>
+                        <td>{{ employee.total_working_days }}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar {% if employee.attendance_percentage >= 90 %}bg-success{% elif employee.attendance_percentage >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ employee.attendance_percentage }}%"
+                                     aria-valuenow="{{ employee.attendance_percentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ employee.attendance_percentage|floatformat:1 }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'attendance:employee_report' employee_id=employee.pk %}?start_date={{ month|date:'Y-m-01' }}&end_date={{ month|date:'Y-m-t' }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No attendance records found for this month</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,17 @@
+from django.urls import path
+from . import views
+
+app_name = 'employees'
+
+urlpatterns = [
+    # Employee URLs
+    path('', views.employee_list, name='employee_list'),
+    path('create/', views.employee_create, name='employee_create'),
+    path('<int:pk>/', views.employee_detail, name='employee_detail'),
+    path('<int:pk>/update/', views.employee_update, name='employee_update'),
+    path('<int:pk>/delete/', views.employee_delete, name='employee_delete'),
+    
+    # Employee Profile URLs
+    path('profile/', views.employee_profile, name='employee_profile'),
+    path('profile/update/', views.employee_profile_update, name='employee_profile_update'),
+] 

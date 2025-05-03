@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Employee - Employee Management System{% endblock %}
+
+{% block page_title %}Delete Employee{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Confirm Delete</h5>
+                <p class="card-text">
+                    Are you sure you want to delete the employee "{{ employee.user.get_full_name }}"?
+                    This action cannot be undone.
+                </p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    This will also delete the user account associated with this employee.
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Employee
+                        </button>
+                        <a href="{% url 'employees:employee_detail' pk=employee.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

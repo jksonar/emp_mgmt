@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Employee Management System{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quick Actions</h5>
+                <div class="list-group">
+                    <a href="{% url 'attendance:attendance_mark' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-calendar-check"></i> Mark Attendance
+                    </a>
+                    <a href="{% url 'leave:leave_apply' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-calendar-event"></i> Apply for Leave
+                    </a>
+                    <a href="{% url 'employees:employee_profile' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person"></i> View Profile
+                    </a>
+                    <a href="{% url 'payroll:payroll_list' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-cash"></i> View Payslips
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Activities</h5>
+                <div class="list-group">
+                    {% for activity in recent_activities %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ activity.title }}</h6>
+                            <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ activity.description }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">No recent activities</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Leave Balance</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Leave Type</th>
+                                <th>Available</th>
+                                <th>Used</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for balance in leave_balances %}
+                            <tr>
+                                <td>{{ balance.leave_type.name }}</td>
+                                <td>{{ balance.available_days }}</td>
+                                <td>{{ balance.used_days }}</td>
+                                <td>{{ balance.total_days }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">No leave balances found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Upcoming Events</h5>
+                <div class="list-group">
+                    {% for event in upcoming_events %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ event.title }}</h6>
+                            <small class="text-muted">{{ event.date|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ event.description }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">No upcoming events</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

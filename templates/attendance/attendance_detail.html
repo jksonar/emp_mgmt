@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Details - Employee Management System{% endblock %}
+
+{% block page_title %}Attendance Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Attendance Information</h5>
+                <div class="btn-group">
+                    <a href="{% url 'attendance:attendance_update' pk=attendance.pk %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Employee</h6>
+                        <p>{{ attendance.employee.user.get_full_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Date</h6>
+                        <p>{{ attendance.date|date:"F d, Y" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Check In</h6>
+                        <p>{{ attendance.check_in|time:"H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Check Out</h6>
+                        <p>{{ attendance.check_out|time:"H:i"|default:"-" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Status</h6>
+                        <span class="badge {% if attendance.status == 'present' %}bg-success{% elif attendance.status == 'absent' %}bg-danger{% elif attendance.status == 'late' %}bg-warning{% else %}bg-secondary{% endif %}">
+                            {{ attendance.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Notes</h6>
+                        <p>{{ attendance.notes|default:"-" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Corrections</h5>
+            </div>
+            <div class="card-body">
+                {% if attendance.corrections.all %}
+                <div class="list-group">
+                    {% for correction in attendance.corrections.all %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-1">{{ correction.get_type_display }}</h6>
+                            <span class="badge {% if correction.status == 'approved' %}bg-success{% elif correction.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ correction.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="mb-1">{{ correction.reason }}</p>
+                        <small class="text-muted">Requested on {{ correction.requested_at|date:"F d, Y H:i" }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No corrections requested</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

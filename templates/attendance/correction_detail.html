@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Correction Details - Employee Management System{% endblock %}
+
+{% block page_title %}Correction Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Correction Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Employee</h6>
+                        <p>{{ correction.attendance.employee.user.get_full_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Date</h6>
+                        <p>{{ correction.attendance.date|date:"F d, Y" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Type</h6>
+                        <p>{{ correction.get_type_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Status</h6>
+                        <span class="badge {% if correction.status == 'approved' %}bg-success{% elif correction.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ correction.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Original Check In</h6>
+                        <p>{{ correction.attendance.check_in|time:"H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Original Check Out</h6>
+                        <p>{{ correction.attendance.check_out|time:"H:i"|default:"-" }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Requested Check In</h6>
+                        <p>{{ correction.requested_check_in|time:"H:i"|default:"-" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Requested Check Out</h6>
+                        <p>{{ correction.requested_check_out|time:"H:i"|default:"-" }}</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">Reason</h6>
+                    <p>{{ correction.reason }}</p>
+                </div>
+                {% if correction.status == 'pending' %}
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'attendance:correction_approve' pk=correction.pk %}" class="btn btn-success">
+                        <i class="bi bi-check"></i> Approve
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-1">Request Submitted</h6>
+                            <small class="text-muted">{{ correction.requested_at|date:"F d, Y H:i" }}</small>
+                        </div>
+                        <p class="mb-1">Correction request was submitted</p>
+                    </div>
+                    {% if correction.status != 'pending' %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-1">Request {{ correction.get_status_display }}</h6>
+                            <small class="text-muted">{{ correction.processed_at|date:"F d, Y H:i" }}</small>
+                        </div>
+                        <p class="mb-1">Request was {{ correction.get_status_display|lower }} by {{ correction.processed_by.get_full_name }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

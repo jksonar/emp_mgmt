@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ employee.user.get_full_name }} - Employee Management System{% endblock %}
+
+{% block page_title %}{{ employee.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                {% if employee.user.profile.avatar %}
+                <img src="{{ employee.user.profile.avatar.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-secondary mb-3 mx-auto" style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-person-fill" style="font-size: 5rem; color: white;"></i>
+                </div>
+                {% endif %}
+                <h5 class="card-title">{{ employee.user.get_full_name }}</h5>
+                <p class="text-muted">{{ employee.designation.name }}</p>
+                <p class="text-muted">{{ employee.department.name }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'employees:employee_update' pk=employee.pk %}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit Employee
+                    </a>
+                    <a href="{% url 'employees:employee_delete' pk=employee.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash"></i> Delete Employee
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Personal Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Employee ID:</strong> {{ employee.employee_id }}</p>
+                        <p><strong>Email:</strong> {{ employee.user.email }}</p>
+                        <p><strong>Phone:</strong> {{ employee.phone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Date of Joining:</strong> {{ employee.date_of_joining|date:"F d, Y" }}</p>
+                        <p><strong>Address:</strong> {{ employee.address }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Employment Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Department:</strong> {{ employee.department.name }}</p>
+                        <p><strong>Designation:</strong> {{ employee.designation.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Manager:</strong> 
+                            {% if employee.department.manager %}
+                            {{ employee.department.manager.user.get_full_name }}
+                            {% else %}
+                            <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Emergency Contact</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ employee.emergency_contact_name }}</p>
+                        <p><strong>Phone:</strong> {{ employee.emergency_contact_phone }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for activity in recent_activities %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ activity.title }}</h6>
+                            <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ activity.description }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">No recent activities</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

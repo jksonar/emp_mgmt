@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Daily Attendance Report - Employee Management System{% endblock %}
+
+{% block page_title %}Daily Attendance Report{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Report for {{ date|date:"F d, Y" }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Employees</h6>
+                        <h3 class="mb-0">{{ total_employees }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Present</h6>
+                        <h3 class="mb-0">{{ present_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Absent</h6>
+                        <h3 class="mb-0">{{ absent_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Late</h6>
+                        <h3 class="mb-0">{{ late_count }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendances %}
+                    <tr>
+                        <td>{{ attendance.employee.user.get_full_name }}</td>
+                        <td>{{ attendance.employee.department.name }}</td>
+                        <td>{{ attendance.check_in|time:"H:i" }}</td>
+                        <td>{{ attendance.check_out|time:"H:i"|default:"-" }}</td>
+                        <td>
+                            <span class="badge {% if attendance.status == 'present' %}bg-success{% elif attendance.status == 'absent' %}bg-danger{% elif attendance.status == 'late' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                {{ attendance.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'attendance:attendance_detail' pk=attendance.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No attendance records found for this date</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

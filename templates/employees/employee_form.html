@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if employee %}Edit{% else %}Create{% endif %} Employee - Employee Management System{% endblock %}
+
+{% block page_title %}{% if employee %}Edit{% else %}Create{% endif %} Employee{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <h5 class="card-title">Personal Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ employee.user.first_name|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ employee.user.last_name|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="id_email" name="email" value="{{ employee.user.email|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="id_phone" name="phone" value="{{ employee.phone|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_address" class="form-label">Address</label>
+                            <textarea class="form-control" id="id_address" name="address" rows="2">{{ employee.address|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="card-title">Employment Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_employee_id" class="form-label">Employee ID</label>
+                                <input type="text" class="form-control" id="id_employee_id" name="employee_id" value="{{ employee.employee_id|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_date_of_joining" class="form-label">Date of Joining</label>
+                                <input type="date" class="form-control" id="id_date_of_joining" name="date_of_joining" value="{{ employee.date_of_joining|date:'Y-m-d'|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_department" class="form-label">Department</label>
+                                <select class="form-select" id="id_department" name="department" required>
+                                    <option value="">Select Department</option>
+                                    {% for department in departments %}
+                                    <option value="{{ department.pk }}" {% if employee.department == department %}selected{% endif %}>
+                                        {{ department.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_designation" class="form-label">Designation</label>
+                                <select class="form-select" id="id_designation" name="designation" required>
+                                    <option value="">Select Designation</option>
+                                    {% for designation in designations %}
+                                    <option value="{{ designation.pk }}" {% if employee.designation == designation %}selected{% endif %}>
+                                        {{ designation.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="card-title">Additional Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_emergency_contact_name" class="form-label">Emergency Contact Name</label>
+                                <input type="text" class="form-control" id="id_emergency_contact_name" name="emergency_contact_name" value="{{ employee.emergency_contact_name|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_emergency_contact_phone" class="form-label">Emergency Contact Phone</label>
+                                <input type="tel" class="form-control" id="id_emergency_contact_phone" name="emergency_contact_phone" value="{{ employee.emergency_contact_phone|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> {% if employee %}Update{% else %}Create{% endif %} Employee
+                        </button>
+                        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

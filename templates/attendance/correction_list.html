@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Corrections - Employee Management System{% endblock %}
+
+{% block page_title %}Attendance Corrections{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Correction Requests</h5>
+        <a href="{% url 'attendance:correction_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Request Correction
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Requested Check In</th>
+                        <th>Requested Check Out</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for correction in corrections %}
+                    <tr>
+                        <td>{{ correction.attendance.employee.user.get_full_name }}</td>
+                        <td>{{ correction.attendance.date|date:"F d, Y" }}</td>
+                        <td>{{ correction.get_type_display }}</td>
+                        <td>{{ correction.requested_check_in|time:"H:i"|default:"-" }}</td>
+                        <td>{{ correction.requested_check_out|time:"H:i"|default:"-" }}</td>
+                        <td>
+                            <span class="badge {% if correction.status == 'approved' %}bg-success{% elif correction.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ correction.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'attendance:correction_detail' pk=correction.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if correction.status == 'pending' %}
+                                <a href="{% url 'attendance:correction_approve' pk=correction.pk %}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No correction requests found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 
