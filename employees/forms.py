@@ -74,11 +74,11 @@ class EmployeeDocumentForm(forms.ModelForm):
 class WorkHistoryForm(forms.ModelForm):
     class Meta:
         model = WorkHistory
-        fields = ['company', 'position', 'start_date', 'end_date', 'description']
+        fields = ['company_name', 'designation', 'start_date', 'end_date', 'is_current', 'job_description']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
-            'description': forms.Textarea(attrs={'rows': 3}),
+            'job_description': forms.Textarea(attrs={'rows': 3}),
         }
     
     def clean(self):
