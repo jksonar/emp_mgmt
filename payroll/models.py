@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from decimal import Decimal
+from django.core.validators import MinValueValidator
+from employees.models import CustomUser
 
 class SalaryComponent(models.Model):
     COMPONENT_TYPES = [
@@ -28,18 +30,29 @@ class SalaryComponent(models.Model):
         return f"{self.name} ({self.get_component_type_display()})"
 
 class SalaryStructure(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    components = models.ManyToManyField(SalaryComponent, through='SalaryStructureComponent')
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='salary_structures')
+    basic_salary = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    hra = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    da = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    special_allowance = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    medical_allowance = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    conveyance_allowance = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    other_allowances = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    professional_tax = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    pf = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    esi = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    tds = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    other_deductions = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    effective_from = models.DateField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['name']
-    
+
     def __str__(self):
-        return self.name
+        return f"{self.employee.username} - {self.effective_from}"
+
+    class Meta:
+        ordering = ['-effective_from']
 
 class SalaryStructureComponent(models.Model):
     salary_structure = models.ForeignKey(SalaryStructure, on_delete=models.CASCADE)
@@ -51,56 +64,50 @@ class SalaryStructureComponent(models.Model):
         unique_together = ['salary_structure', 'component']
     
     def __str__(self):
-        return f"{self.salary_structure.name} - {self.component.name}"
+        return f"{self.salary_structure.employee.username} - {self.component.name}"
 
-class PayrollRecord(models.Model):
+class Payroll(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
         ('pending', 'Pending Approval'),
         ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
         ('paid', 'Paid'),
-        ('cancelled', 'Cancelled'),
     ]
-    
-    employee = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='payroll_records')
+
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payrolls')
     salary_structure = models.ForeignKey(SalaryStructure, on_delete=models.CASCADE)
     month = models.DateField()
-    basic_salary = models.DecimalField(max_digits=10, decimal_places=2)
-    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
-    total_deductions = models.DecimalField(max_digits=10, decimal_places=2)
-    net_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    basic_salary = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    hra = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    da = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    special_allowance = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    medical_allowance = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    conveyance_allowance = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    other_allowances = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    total_earnings = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    professional_tax = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    pf = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    esi = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    tds = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    other_deductions = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    total_deductions = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    net_salary = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    approved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_payrolls')
+    approved_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['-month', 'employee']
-        unique_together = ['employee', 'month']
-    
+
     def __str__(self):
-        return f"{self.employee.get_full_name()} - {self.month.strftime('%B %Y')}"
-    
-    def calculate_salary(self):
-        # Calculate gross salary and deductions based on salary structure
-        self.gross_salary = self.basic_salary
-        self.total_deductions = Decimal('0.00')
-        
-        for structure_component in self.salary_structure.salarystructurecomponent_set.all():
-            component = structure_component.component
-            if component.calculation_type == 'fixed':
-                amount = component.value
-            else:  # percentage
-                amount = (self.basic_salary * component.value) / Decimal('100.00')
-            
-            if component.component_type == 'earning':
-                self.gross_salary += amount
-            else:  # deduction
-                self.total_deductions += amount
-        
-        self.net_salary = self.gross_salary - self.total_deductions
+        return f"{self.employee.username} - {self.month.strftime('%B %Y')}"
+
+    class Meta:
+        ordering = ['-month']
+        unique_together = ['employee', 'month']
 
 class Payslip(models.Model):
-    payroll_record = models.ForeignKey(PayrollRecord, on_delete=models.CASCADE, related_name='payslips')
+    payroll_record = models.ForeignKey(Payroll, on_delete=models.CASCADE, related_name='payslips')
     file = models.FileField(upload_to='payslips/')
     generated_at = models.DateTimeField(auto_now_add=True)
     

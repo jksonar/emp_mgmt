@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Update{% else %}Create{% endif %} Salary Structure
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">
+        {% if form.instance.pk %}Update{% else %}Create{% endif %} Salary Structure
+    </h1>
+    
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.employee.id_for_label }}" class="form-label">Employee</label>
+                {{ form.employee }}
+                {% if form.employee.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.employee.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.effective_from.id_for_label }}" class="form-label">Effective From</label>
+                {{ form.effective_from }}
+                {% if form.effective_from.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.effective_from.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.basic_salary.id_for_label }}" class="form-label">Basic Salary</label>
+                {{ form.basic_salary }}
+                {% if form.basic_salary.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.basic_salary.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.hra.id_for_label }}" class="form-label">HRA</label>
+                {{ form.hra }}
+                {% if form.hra.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.hra.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.da.id_for_label }}" class="form-label">DA</label>
+                {{ form.da }}
+                {% if form.da.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.da.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.special_allowance.id_for_label }}" class="form-label">Special Allowance</label>
+                {{ form.special_allowance }}
+                {% if form.special_allowance.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.special_allowance.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.medical_allowance.id_for_label }}" class="form-label">Medical Allowance</label>
+                {{ form.medical_allowance }}
+                {% if form.medical_allowance.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.medical_allowance.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.conveyance_allowance.id_for_label }}" class="form-label">Conveyance Allowance</label>
+                {{ form.conveyance_allowance }}
+                {% if form.conveyance_allowance.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.conveyance_allowance.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.other_allowances.id_for_label }}" class="form-label">Other Allowances</label>
+                {{ form.other_allowances }}
+                {% if form.other_allowances.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.other_allowances.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.professional_tax.id_for_label }}" class="form-label">Professional Tax</label>
+                {{ form.professional_tax }}
+                {% if form.professional_tax.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.professional_tax.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.pf.id_for_label }}" class="form-label">PF</label>
+                {{ form.pf }}
+                {% if form.pf.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.pf.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.esi.id_for_label }}" class="form-label">ESI</label>
+                {{ form.esi }}
+                {% if form.esi.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.esi.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.tds.id_for_label }}" class="form-label">TDS</label>
+                {{ form.tds }}
+                {% if form.tds.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.tds.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.other_deductions.id_for_label }}" class="form-label">Other Deductions</label>
+                {{ form.other_deductions }}
+                {% if form.other_deductions.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.other_deductions.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                    Active
+                </label>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">
+                {% if form.instance.pk %}Update{% else %}Create{% endif %} Structure
+            </button>
+            <a href="{% url 'payroll:salary_structure_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %} 

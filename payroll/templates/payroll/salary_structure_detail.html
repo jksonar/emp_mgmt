@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Salary Structure Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Salary Structure Details</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Basic Information</h5>
+                <div>
+                    <a href="{% url 'payroll:salary_structure_update' structure.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'payroll:salary_structure_delete' structure.pk %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Employee:</strong> {{ structure.employee.get_full_name }}</p>
+                    <p><strong>Effective From:</strong> {{ structure.effective_from }}</p>
+                    <p><strong>Status:</strong>
+                        {% if structure.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Created At:</strong> {{ structure.created_at }}</p>
+                    <p><strong>Updated At:</strong> {{ structure.updated_at }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Earnings</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Basic Salary:</strong> {{ structure.basic_salary }}</p>
+                    <p><strong>HRA:</strong> {{ structure.hra }}</p>
+                    <p><strong>DA:</strong> {{ structure.da }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Special Allowance:</strong> {{ structure.special_allowance }}</p>
+                    <p><strong>Medical Allowance:</strong> {{ structure.medical_allowance }}</p>
+                    <p><strong>Conveyance Allowance:</strong> {{ structure.conveyance_allowance }}</p>
+                    <p><strong>Other Allowances:</strong> {{ structure.other_allowances }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Deductions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Professional Tax:</strong> {{ structure.professional_tax }}</p>
+                    <p><strong>PF:</strong> {{ structure.pf }}</p>
+                    <p><strong>ESI:</strong> {{ structure.esi }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>TDS:</strong> {{ structure.tds }}</p>
+                    <p><strong>Other Deductions:</strong> {{ structure.other_deductions }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'payroll:salary_structure_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+{% endblock %} 

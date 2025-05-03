@@ -5,196 +5,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import Employee, EmployeeDocument, WorkHistory, CustomUser, UserProfile, Document
-from .forms import EmployeeForm, EmployeeDocumentForm, WorkHistoryForm, CustomUserCreationForm, CustomUserChangeForm, UserProfileForm, DocumentForm
+from .models import CustomUser, UserProfile, Document, WorkHistory
+from .forms import CustomUserCreationForm, CustomUserChangeForm, UserProfileForm, DocumentForm, WorkHistoryForm
 from django.contrib.auth import login, logout, authenticate
-
-
-@login_required
-def employee_list(request):
-    """List all employees"""
-    employees = Employee.objects.all()
-    return render(request, 'employees/employee_list.html', {'employees': employees})
-
-@login_required
-def employee_detail(request, pk):
-    """View employee details"""
-    employee = get_object_or_404(Employee, pk=pk)
-    documents = employee.documents.all()
-    work_history = employee.work_history.all()
-    return render(request, 'employees/employee_detail.html', {
-        'employee': employee,
-        'documents': documents,
-        'work_history': work_history
-    })
-
-class EmployeeCreateView(LoginRequiredMixin, CreateView):
-    model = Employee
-    form_class = EmployeeForm
-    template_name = 'employees/employee_form.html'
-    success_url = reverse_lazy('employees:employee_list')
-    
-    def form_valid(self, form):
-        messages.success(self.request, 'Employee created successfully.')
-        return super().form_valid(form)
-
-class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
-    model = Employee
-    form_class = EmployeeForm
-    template_name = 'employees/employee_form.html'
-    success_url = reverse_lazy('employees:employee_list')
-    
-    def form_valid(self, form):
-        messages.success(self.request, 'Employee updated successfully.')
-        return super().form_valid(form)
-
-@login_required
-def employee_create(request):
-    """Create a new employee"""
-    if request.method == 'POST':
-        form = EmployeeForm(request.POST, request.FILES)
-        if form.is_valid():
-            employee = form.save()
-            return redirect('employees:employee_detail', pk=employee.pk)
-    else:
-        form = EmployeeForm()
-    return render(request, 'employees/employee_form.html', {'form': form})
-
-@login_required
-def employee_update(request, pk):
-    """Update employee details"""
-    employee = get_object_or_404(Employee, pk=pk)
-    if request.method == 'POST':
-        form = EmployeeForm(request.POST, request.FILES, instance=employee)
-        if form.is_valid():
-            form.save()
-            return redirect('employees:employee_detail', pk=employee.pk)
-    else:
-        form = EmployeeForm(instance=employee)
-    return render(request, 'employees/employee_form.html', {'form': form})
-
-@login_required
-def employee_delete(request, pk):
-    """Delete an employee"""
-    employee = get_object_or_404(Employee, pk=pk)
-    if request.method == 'POST':
-        employee.delete()
-        return redirect('employees:employee_list')
-    return render(request, 'employees/employee_confirm_delete.html', {'employee': employee})
-
-@login_required
-def employee_profile(request):
-    """View employee profile"""
-    employee = get_object_or_404(Employee, user=request.user)
-    return render(request, 'employees/employee_profile.html', {'employee': employee})
-
-@login_required
-def employee_profile_update(request):
-    """Update employee profile"""
-    employee = get_object_or_404(Employee, user=request.user)
-    if request.method == 'POST':
-        form = EmployeeProfileForm(request.POST, request.FILES, instance=employee)
-        if form.is_valid():
-            form.save()
-            return redirect('employees:employee_profile')
-    else:
-        form = EmployeeProfileForm(instance=employee)
-    return render(request, 'employees/employee_profile_form.html', {'form': form})
-
-@login_required
-def upload_document(request, employee_id):
-    employee = get_object_or_404(Employee, pk=employee_id)
-    
-    if request.method == 'POST':
-        form = EmployeeDocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            document = form.save(commit=False)
-            document.employee = employee
-            document.save()
-            messages.success(request, 'Document uploaded successfully.')
-            return redirect('employees:employee_detail', pk=employee_id)
-    else:
-        form = EmployeeDocumentForm()
-    
-    return render(request, 'employees/document_form.html', {
-        'form': form,
-        'employee': employee
-    })
-
-@login_required
-def verify_document(request, document_id):
-    if not request.user.is_hr_manager:
-        messages.error(request, 'You do not have permission to verify documents.')
-        return redirect('employees:employee_list')
-    
-    document = get_object_or_404(EmployeeDocument, pk=document_id)
-    document.is_verified = True
-    document.verified_by = request.user
-    document.save()
-    
-    messages.success(request, 'Document verified successfully.')
-    return redirect('employees:employee_detail', pk=document.employee.id)
-
-@login_required
-def add_work_history(request, employee_id):
-    employee = get_object_or_404(Employee, pk=employee_id)
-    
-    if request.method == 'POST':
-        form = WorkHistoryForm(request.POST)
-        if form.is_valid():
-            work_history = form.save(commit=False)
-            work_history.employee = employee
-            work_history.save()
-            messages.success(request, 'Work history added successfully.')
-            return redirect('employees:employee_detail', pk=employee_id)
-    else:
-        form = WorkHistoryForm()
-    
-    return render(request, 'employees/work_history_form.html', {
-        'form': form,
-        'employee': employee
-    })
-
-@login_required
-def delete_work_history(request, work_history_id):
-    work_history = get_object_or_404(WorkHistory, pk=work_history_id)
-    employee_id = work_history.employee.id
-    work_history.delete()
-    messages.success(request, 'Work history deleted successfully.')
-    return redirect('employees:employee_detail', pk=employee_id)
-
-@login_required
-def delete_document(request, document_id):
-    document = get_object_or_404(EmployeeDocument, pk=document_id)
-    employee_id = document.employee.id
-    document.delete()
-    messages.success(request, 'Document deleted successfully.')
-    return redirect('employees:employee_detail', pk=employee_id)
-
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-            messages.success(request, 'Welcome back!')
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    
-    return render(request, 'employees/login.html')
-
-@login_required
-def logout_view(request):
-    logout(request)
-    messages.info(request, 'You have been logged out.')
-    return redirect('login')
-
-@login_required
-def dashboard(request):
-    return render(request, 'employees/dashboard.html')
 
 class CustomUserListView(LoginRequiredMixin, ListView):
     model = CustomUser
@@ -208,6 +21,12 @@ class CustomUserDetailView(LoginRequiredMixin, DetailView):
     model = CustomUser
     template_name = 'employees/user_detail.html'
     context_object_name = 'user'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['documents'] = self.object.documents.all()
+        context['work_history'] = self.object.work_history.all()
+        return context
 
 class CustomUserCreateView(LoginRequiredMixin, CreateView):
     model = CustomUser
@@ -275,3 +94,76 @@ def document_upload(request):
         form = DocumentForm()
     
     return render(request, 'employees/document_form.html', {'form': form})
+
+@login_required
+def document_delete(request, pk):
+    document = get_object_or_404(Document, pk=pk, user=request.user)
+    document.delete()
+    messages.success(request, 'Document deleted successfully.')
+    return redirect('employees:document_list')
+
+@login_required
+def work_history_list(request):
+    work_history = request.user.work_history.all()
+    return render(request, 'employees/work_history_list.html', {'work_history': work_history})
+
+@login_required
+def work_history_create(request):
+    if request.method == 'POST':
+        form = WorkHistoryForm(request.POST)
+        if form.is_valid():
+            work_history = form.save(commit=False)
+            work_history.user = request.user
+            work_history.save()
+            messages.success(request, 'Work history added successfully.')
+            return redirect('employees:work_history_list')
+    else:
+        form = WorkHistoryForm()
+    
+    return render(request, 'employees/work_history_form.html', {'form': form})
+
+@login_required
+def work_history_update(request, pk):
+    work_history = get_object_or_404(WorkHistory, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = WorkHistoryForm(request.POST, instance=work_history)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Work history updated successfully.')
+            return redirect('employees:work_history_list')
+    else:
+        form = WorkHistoryForm(instance=work_history)
+    
+    return render(request, 'employees/work_history_form.html', {'form': form})
+
+@login_required
+def work_history_delete(request, pk):
+    work_history = get_object_or_404(WorkHistory, pk=pk, user=request.user)
+    work_history.delete()
+    messages.success(request, 'Work history deleted successfully.')
+    return redirect('employees:work_history_list')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, 'Welcome back!')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'employees/login.html')
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.info(request, 'You have been logged out.')
+    return redirect('login')
+
+@login_required
+def dashboard(request):
+    return render(request, 'employees/dashboard.html')

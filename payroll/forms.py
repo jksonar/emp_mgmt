@@ -1,21 +1,30 @@
 from django import forms
-from .models import SalaryStructure, PayrollRecord
+from django.core.validators import MinValueValidator
+from employees.models import CustomUser
+from .models import SalaryStructure, Payroll
 
 class SalaryStructureForm(forms.ModelForm):
     class Meta:
         model = SalaryStructure
-        fields = ('name', 'description', 'is_active')
+        fields = [
+            'employee', 'basic_salary', 'hra', 'da', 'special_allowance',
+            'medical_allowance', 'conveyance_allowance', 'other_allowances',
+            'professional_tax', 'pf', 'esi', 'tds', 'other_deductions',
+            'effective_from', 'is_active'
+        ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
+            'effective_from': forms.DateInput(attrs={'type': 'date'}),
         }
 
 class PayrollForm(forms.ModelForm):
     class Meta:
-        model = PayrollRecord
-        fields = (
-            'employee', 'salary_structure', 'month', 'basic_salary',
-            'status'
-        )
+        model = Payroll
+        fields = [
+            'employee', 'salary_structure', 'month', 'basic_salary', 'hra', 'da',
+            'special_allowance', 'medical_allowance', 'conveyance_allowance',
+            'other_allowances', 'professional_tax', 'pf', 'esi', 'tds',
+            'other_deductions'
+        ]
         widgets = {
             'month': forms.DateInput(attrs={'type': 'date'}),
         }
@@ -27,7 +36,7 @@ class PayrollForm(forms.ModelForm):
         
         if month and employee:
             # Check if payroll record already exists for this employee and month
-            existing = PayrollRecord.objects.filter(
+            existing = Payroll.objects.filter(
                 employee=employee,
                 month__year=month.year,
                 month__month=month.month
@@ -42,5 +51,11 @@ class PayrollForm(forms.ModelForm):
 
 class PayrollApprovalForm(forms.ModelForm):
     class Meta:
-        model = PayrollRecord
-        fields = ('status',) 
+        model = Payroll
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(choices=[
+                ('approved', 'Approve'),
+                ('rejected', 'Reject'),
+            ])
+        } 

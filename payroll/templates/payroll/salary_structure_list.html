@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Salary Structures{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Salary Structures</h1>
+    
+    <div class="mb-4">
+        <a href="{% url 'payroll:salary_structure_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Structure
+        </a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Basic Salary</th>
+                    <th>Effective From</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for structure in structures %}
+                <tr>
+                    <td>{{ structure.employee.get_full_name }}</td>
+                    <td>{{ structure.basic_salary }}</td>
+                    <td>{{ structure.effective_from }}</td>
+                    <td>
+                        {% if structure.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'payroll:salary_structure_detail' structure.pk %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'payroll:salary_structure_update' structure.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'payroll:salary_structure_delete' structure.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No salary structures found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 
