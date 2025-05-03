@@ -1,44 +1,58 @@
 from django import forms
-from .models import PerformanceReview, PerformanceGoal
+from .models import PerformanceReview, PerformanceGoal, PerformanceCycle, KPIReview
 
 class PerformanceReviewForm(forms.ModelForm):
     class Meta:
         model = PerformanceReview
         fields = (
-            'review_period_start', 'review_period_end',
-            'self_assessment', 'self_rating'
+            'cycle', 'self_rating', 'strengths', 'areas_for_improvement',
+            'goals_for_next_cycle', 'comments'
         )
         widgets = {
-            'review_period_start': forms.DateInput(attrs={'type': 'date'}),
-            'review_period_end': forms.DateInput(attrs={'type': 'date'}),
-            'self_assessment': forms.Textarea(attrs={'rows': 5}),
             'self_rating': forms.NumberInput(attrs={'min': 0, 'max': 5, 'step': 0.1}),
+            'strengths': forms.Textarea(attrs={'rows': 3}),
+            'areas_for_improvement': forms.Textarea(attrs={'rows': 3}),
+            'goals_for_next_cycle': forms.Textarea(attrs={'rows': 3}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
         }
 
 class PerformanceFeedbackForm(forms.ModelForm):
     class Meta:
         model = PerformanceReview
-        fields = ('feedback', 'rating')
+        fields = ('manager_rating', 'comments')
         widgets = {
-            'feedback': forms.Textarea(attrs={'rows': 5}),
-            'rating': forms.NumberInput(attrs={'min': 0, 'max': 5, 'step': 0.1}),
+            'manager_rating': forms.NumberInput(attrs={'min': 0, 'max': 5, 'step': 0.1}),
+            'comments': forms.Textarea(attrs={'rows': 5}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'instance' in kwargs:
             instance = kwargs['instance']
-            if instance.status == 'team_lead_review':
-                self.fields['feedback'].label = 'Team Lead Feedback'
-                self.fields['rating'].label = 'Team Lead Rating'
-            elif instance.status == 'manager_review':
-                self.fields['feedback'].label = 'Manager Feedback'
-                self.fields['rating'].label = 'Manager Rating'
-            elif instance.status == 'senior_manager_review':
-                self.fields['feedback'].label = 'Senior Manager Feedback'
-                self.fields['rating'].label = 'Senior Manager Rating'
+            if instance.status == 'manager_review':
+                self.fields['manager_rating'].label = 'Manager Rating'
+                self.fields['comments'].label = 'Manager Comments'
             elif instance.status == 'hr_review':
-                self.fields['feedback'].label = 'HR Feedback'
+                self.fields['manager_rating'].label = 'HR Rating'
+                self.fields['comments'].label = 'HR Comments'
+
+class KPIReviewForm(forms.ModelForm):
+    class Meta:
+        model = KPIReview
+        fields = ('self_rating', 'self_comments')
+        widgets = {
+            'self_rating': forms.Select(choices=KPIReview.RATING_CHOICES),
+            'self_comments': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class ManagerKPIReviewForm(forms.ModelForm):
+    class Meta:
+        model = KPIReview
+        fields = ('manager_rating', 'manager_comments')
+        widgets = {
+            'manager_rating': forms.Select(choices=KPIReview.RATING_CHOICES),
+            'manager_comments': forms.Textarea(attrs={'rows': 3}),
+        }
 
 class PerformanceGoalForm(forms.ModelForm):
     class Meta:

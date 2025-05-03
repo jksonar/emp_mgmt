@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.utils import timezone
-from .models import SalaryStructure, Payroll, Payslip
+from .models import SalaryStructure, PayrollRecord, Payslip
 from .forms import SalaryStructureForm, PayrollForm, PayrollApprovalForm
 
 @login_required
@@ -47,7 +47,7 @@ def salary_structure_update(request, pk):
 @login_required
 def payroll_list(request):
     """List all payroll records"""
-    payrolls = Payroll.objects.all()
+    payrolls = PayrollRecord.objects.all()
     return render(request, 'payroll/payroll_list.html', {'payrolls': payrolls})
 
 @login_required
@@ -65,13 +65,13 @@ def payroll_create(request):
 @login_required
 def payroll_detail(request, pk):
     """View payroll details"""
-    payroll = get_object_or_404(Payroll, pk=pk)
+    payroll = get_object_or_404(PayrollRecord, pk=pk)
     return render(request, 'payroll/payroll_detail.html', {'payroll': payroll})
 
 @login_required
 def payroll_update(request, pk):
     """Update payroll details"""
-    payroll = get_object_or_404(Payroll, pk=pk)
+    payroll = get_object_or_404(PayrollRecord, pk=pk)
     if request.method == 'POST':
         form = PayrollForm(request.POST, instance=payroll)
         if form.is_valid():
@@ -84,14 +84,12 @@ def payroll_update(request, pk):
 @login_required
 def payroll_approve(request, pk):
     """Approve a payroll record"""
-    payroll = get_object_or_404(Payroll, pk=pk)
+    payroll = get_object_or_404(PayrollRecord, pk=pk)
     if request.method == 'POST':
         form = PayrollApprovalForm(request.POST, instance=payroll)
         if form.is_valid():
             payroll = form.save(commit=False)
             payroll.status = 'approved'
-            payroll.approved_by = request.user
-            payroll.approved_at = timezone.now()
             payroll.save()
             return redirect('payroll:payroll_detail', pk=payroll.pk)
     else:
@@ -101,18 +99,10 @@ def payroll_approve(request, pk):
 @login_required
 def payslip_generate(request, pk):
     """Generate payslip for a payroll record"""
-    payroll = get_object_or_404(Payroll, pk=pk)
+    payroll = get_object_or_404(PayrollRecord, pk=pk)
     payslip = Payslip.objects.create(
-        payroll=payroll,
-        employee=payroll.employee,
-        basic_salary=payroll.basic_salary,
-        hra=payroll.hra,
-        da=payroll.da,
-        ta=payroll.ta,
-        pf=payroll.pf,
-        tax=payroll.tax,
-        other_deductions=payroll.other_deductions,
-        net_salary=payroll.net_salary
+        payroll_record=payroll,
+        file=None  # This will be handled by the file upload
     )
     return render(request, 'payroll/payslip_detail.html', {'payslip': payslip})
 
@@ -121,9 +111,9 @@ def monthly_payroll_report(request):
     """Generate monthly payroll report"""
     month = request.GET.get('month', timezone.now().month)
     year = request.GET.get('year', timezone.now().year)
-    payrolls = Payroll.objects.filter(
-        month=month,
-        year=year
+    payrolls = PayrollRecord.objects.filter(
+        month__month=month,
+        month__year=year
     )
     return render(request, 'payroll/monthly_report.html', {
         'month': month,
@@ -138,13 +128,13 @@ def employee_payroll_report(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    payrolls = Payroll.objects.all()
+    payrolls = PayrollRecord.objects.all()
     if employee_id:
         payrolls = payrolls.filter(employee_id=employee_id)
     if start_date:
-        payrolls = payrolls.filter(date__gte=start_date)
+        payrolls = payrolls.filter(month__gte=start_date)
     if end_date:
-        payrolls = payrolls.filter(date__lte=end_date)
+        payrolls = payrolls.filter(month__lte=end_date)
         
     return render(request, 'payroll/employee_report.html', {
         'payrolls': payrolls,

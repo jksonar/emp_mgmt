@@ -119,7 +119,7 @@ class Document(models.Model):
     file = models.FileField(upload_to='documents/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
-    verified_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_documents')
+    verified_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_user_documents')
     verified_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:

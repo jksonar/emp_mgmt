@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.utils import timezone
-from employees.models import Employee
+from employees.models import Employee, Department
 from attendance.models import Attendance
 from leave.models import LeaveApplication, LeaveBalance
-from payroll.models import Payroll
+from payroll.models import PayrollRecord
 from performance.models import PerformanceReview, PerformanceGoal
 import csv
 from datetime import datetime
@@ -97,9 +97,9 @@ def payroll_monthly_report(request):
     """Generate monthly payroll report"""
     month = request.GET.get('month', timezone.now().month)
     year = request.GET.get('year', timezone.now().year)
-    payrolls = Payroll.objects.filter(
-        month=month,
-        year=year
+    payrolls = PayrollRecord.objects.filter(
+        month__month=month,
+        month__year=year
     )
     return render(request, 'reports/payroll_monthly_report.html', {
         'month': month,
@@ -114,13 +114,13 @@ def payroll_employee_report(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    payrolls = Payroll.objects.all()
+    payrolls = PayrollRecord.objects.all()
     if employee_id:
         payrolls = payrolls.filter(employee_id=employee_id)
     if start_date:
-        payrolls = payrolls.filter(date__gte=start_date)
+        payrolls = payrolls.filter(month__gte=start_date)
     if end_date:
-        payrolls = payrolls.filter(date__lte=end_date)
+        payrolls = payrolls.filter(month__lte=end_date)
         
     return render(request, 'reports/payroll_employee_report.html', {
         'payrolls': payrolls,
@@ -215,22 +215,16 @@ def export_payroll(request):
     response['Content-Disposition'] = 'attachment; filename="payroll.csv"'
     
     writer = csv.writer(response)
-    writer.writerow(['Employee ID', 'Name', 'Month', 'Year', 'Basic Salary', 'HRA', 'DA', 'TA', 'PF', 'Tax', 'Net Salary'])
+    writer.writerow(['Employee ID', 'Name', 'Month', 'Basic Salary', 'Status'])
     
-    payrolls = Payroll.objects.all()
+    payrolls = PayrollRecord.objects.all()
     for payroll in payrolls:
         writer.writerow([
             payroll.employee.employee_id,
             payroll.employee.user.get_full_name(),
             payroll.month,
-            payroll.year,
             payroll.basic_salary,
-            payroll.hra,
-            payroll.da,
-            payroll.ta,
-            payroll.pf,
-            payroll.tax,
-            payroll.net_salary
+            payroll.status
         ])
     
     return response

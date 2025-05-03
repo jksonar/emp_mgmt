@@ -1,17 +1,17 @@
 from django import forms
-from .models import Leave, LeaveType, LeaveBalance
+from .models import LeaveApplication, LeaveType, LeaveBalance
 
 class LeaveTypeForm(forms.ModelForm):
     class Meta:
         model = LeaveType
-        fields = ('name', 'description', 'max_days', 'is_paid')
+        fields = ('name', 'description', 'max_days', 'carry_forward', 'max_carry_forward', 'requires_approval', 'is_active')
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
 
 class LeaveApplicationForm(forms.ModelForm):
     class Meta:
-        model = Leave
+        model = LeaveApplication
         fields = ('leave_type', 'start_date', 'end_date', 'reason')
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
@@ -29,7 +29,7 @@ class LeaveApplicationForm(forms.ModelForm):
 
 class LeaveApprovalForm(forms.ModelForm):
     class Meta:
-        model = Leave
+        model = LeaveApplication
         fields = ('status',)
 
 class LeaveBalanceForm(forms.ModelForm):

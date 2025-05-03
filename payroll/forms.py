@@ -1,36 +1,46 @@
 from django import forms
-from .models import SalaryStructure, Payroll
+from .models import SalaryStructure, PayrollRecord
 
 class SalaryStructureForm(forms.ModelForm):
     class Meta:
         model = SalaryStructure
-        fields = (
-            'basic_salary', 'hra', 'da', 'special_allowance',
-            'medical_allowance', 'conveyance_allowance', 'other_allowances',
-            'effective_from'
-        )
+        fields = ('name', 'description', 'is_active')
         widgets = {
-            'effective_from': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
         }
 
 class PayrollForm(forms.ModelForm):
     class Meta:
-        model = Payroll
+        model = PayrollRecord
         fields = (
-            'month', 'year', 'basic_salary', 'hra', 'da',
-            'special_allowance', 'medical_allowance', 'conveyance_allowance',
-            'other_allowances', 'professional_tax', 'income_tax',
-            'provident_fund', 'other_deductions'
+            'employee', 'salary_structure', 'month', 'basic_salary',
+            'status'
         )
         widgets = {
-            'month': forms.NumberInput(attrs={'min': 1, 'max': 12}),
-            'year': forms.NumberInput(attrs={'min': 2000, 'max': 2100}),
+            'month': forms.DateInput(attrs={'type': 'date'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        month = cleaned_data.get('month')
+        employee = cleaned_data.get('employee')
+        
+        if month and employee:
+            # Check if payroll record already exists for this employee and month
+            existing = PayrollRecord.objects.filter(
+                employee=employee,
+                month__year=month.year,
+                month__month=month.month
+            ).exists()
+            
+            if existing:
+                raise forms.ValidationError(
+                    "A payroll record already exists for this employee in the selected month."
+                )
+        
+        return cleaned_data
 
 class PayrollApprovalForm(forms.ModelForm):
     class Meta:
-        model = Payroll
-        fields = ('status', 'payment_date')
-        widgets = {
-            'payment_date': forms.DateInput(attrs={'type': 'date'}),
-        } 
+        model = PayrollRecord
+        fields = ('status',) 

@@ -73,10 +73,12 @@ class EmployeeUpdateForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = (
-            'address', 'emergency_contact', 'emergency_contact_name',
+            'address', 'emergency_contact_name', 'emergency_contact_relationship',
+            'emergency_contact_phone', 'emergency_contact_address',
             'bank_account_number', 'bank_name', 'bank_branch',
             'pan_number', 'aadhar_number'
         )
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
+            'emergency_contact_address': forms.Textarea(attrs={'rows': 3}),
         } 
