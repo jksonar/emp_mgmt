@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.utils import timezone
-from employees.models import Employee, Department
+from employees.models import CustomUser, Department
 from attendance.models import Attendance
 from leave.models import LeaveApplication, LeaveBalance
 from payroll.models import PayrollRecord
@@ -13,7 +13,7 @@ from datetime import datetime
 @login_required
 def employee_directory(request):
     """Generate employee directory report"""
-    employees = Employee.objects.all()
+    employees = CustomUser.objects.filter(role='employee')
     return render(request, 'reports/employee_directory.html', {'employees': employees})
 
 @login_required
@@ -27,9 +27,10 @@ def attrition_report(request):
     """Generate employee attrition report"""
     # Get employees who left in the last year
     one_year_ago = timezone.now() - timezone.timedelta(days=365)
-    attritions = Employee.objects.filter(
+    attritions = CustomUser.objects.filter(
         date_of_leaving__gte=one_year_ago,
-        date_of_leaving__lte=timezone.now()
+        date_of_leaving__lte=timezone.now(),
+        role='employee'
     )
     return render(request, 'reports/attrition_report.html', {'attritions': attritions})
 
@@ -150,15 +151,15 @@ def export_employees(request):
     writer = csv.writer(response)
     writer.writerow(['Employee ID', 'Name', 'Department', 'Designation', 'Email', 'Phone', 'Joining Date'])
     
-    employees = Employee.objects.all()
+    employees = CustomUser.objects.filter(role='employee')
     for employee in employees:
         writer.writerow([
             employee.employee_id,
-            employee.user.get_full_name(),
-            employee.department.name,
-            employee.designation.name,
-            employee.user.email,
-            employee.phone,
+            employee.get_full_name(),
+            employee.department.name if employee.department else '',
+            employee.designation.name if employee.designation else '',
+            employee.email,
+            employee.phone_number,
             employee.date_of_joining
         ])
     
