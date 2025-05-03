@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ type.name }} - Leave Type Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>{{ type.name }}</h1>
+                <div>
+                    <a href="{% url 'leave:type_update' type.pk %}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </a>
+                    <a href="{% url 'leave:type_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Leave Type Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Name</dt>
+                        <dd class="col-sm-8">{{ type.name }}</dd>
+                        
+                        <dt class="col-sm-4">Description</dt>
+                        <dd class="col-sm-8">{{ type.description|default:"No description provided" }}</dd>
+                        
+                        <dt class="col-sm-4">Default Days</dt>
+                        <dd class="col-sm-8">{{ type.default_days }}</dd>
+                        
+                        <dt class="col-sm-4">Is Paid</dt>
+                        <dd class="col-sm-8">
+                            {% if type.is_paid %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </dd>
+                        
+                        <dt class="col-sm-4">Requires Approval</dt>
+                        <dd class="col-sm-8">
+                            {% if type.requires_approval %}
+                                <span class="badge bg-warning">Yes</span>
+                            {% else %}
+                                <span class="badge bg-info">No</span>
+                            {% endif %}
+                        </dd>
+                        
+                        <dt class="col-sm-4">Created On</dt>
+                        <dd class="col-sm-8">{{ type.created_at|date:"d M Y" }}</dd>
+                        
+                        <dt class="col-sm-4">Last Updated</dt>
+                        <dd class="col-sm-8">{{ type.updated_at|date:"d M Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Applications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'employees:employee_detail' application.employee.id %}" class="text-decoration-none">
+                                            {{ application.employee.get_full_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ application.created_at|date:"d M Y" }}</td>
+                                    <td>
+                                        {% if application.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif application.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% elif application.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No applications found for this leave type.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

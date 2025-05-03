@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'payroll',
     'performance',
     'reports',
-    'users',
 ]
 
 MIDDLEWARE = [
@@ -151,7 +150,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Custom User Model
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'employees.CustomUser'
 
 # Login/Logout URLs
 LOGIN_REDIRECT_URL = 'dashboard'

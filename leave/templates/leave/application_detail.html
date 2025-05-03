@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave Application Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Leave Application Details</h1>
+            <a href="{% url 'leave:application_list' %}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Application Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Employee</th>
+                            <td>{{ leave.employee.get_full_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Leave Type</th>
+                            <td>{{ leave.leave_type.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Start Date</th>
+                            <td>{{ leave.start_date|date:"d M Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>End Date</th>
+                            <td>{{ leave.end_date|date:"d M Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Duration</th>
+                            <td>{{ leave.days }} day(s)</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge {% if leave.status == 'approved' %}bg-success
+                                                 {% elif leave.status == 'rejected' %}bg-danger
+                                                 {% elif leave.status == 'cancelled' %}bg-secondary
+                                                 {% else %}bg-warning{% endif %}">
+                                    {{ leave.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Reason</th>
+                            <td>{{ leave.reason }}</td>
+                        </tr>
+                        <tr>
+                            <th>Applied On</th>
+                            <td>{{ leave.created_at|date:"d M Y H:i" }}</td>
+                        </tr>
+                        {% if leave.approved_by %}
+                        <tr>
+                            <th>Approved By</th>
+                            <td>{{ leave.approved_by.get_full_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Approved On</th>
+                            <td>{{ leave.approved_at|date:"d M Y H:i" }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    {% if leave.status == 'pending' %}
+                        {% if user.is_superuser or user.is_staff %}
+                            <a href="{% url 'leave:approve_leave' leave.pk %}" class="btn btn-success btn-block mb-2">Approve</a>
+                            <a href="{% url 'leave:reject_leave' leave.pk %}" class="btn btn-danger btn-block mb-2">Reject</a>
+                        {% endif %}
+                        {% if leave.employee == user %}
+                            <a href="{% url 'leave:cancel_leave' leave.pk %}" class="btn btn-warning btn-block mb-2">Cancel</a>
+                        {% endif %}
+                    {% endif %}
+                    {% if leave.employee == user %}
+                        <a href="{% url 'leave:application_update' leave.pk %}" class="btn btn-primary btn-block mb-2">Update</a>
+                        <a href="{% url 'leave:application_delete' leave.pk %}" class="btn btn-danger btn-block">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

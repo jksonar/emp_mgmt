@@ -1,6 +1,40 @@
 from django import forms
 from django.core.validators import RegexValidator
-from .models import Employee, EmployeeDocument, WorkHistory
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import CustomUser, UserProfile, Document, Employee, EmployeeDocument, WorkHistory
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'first_name', 'last_name', 'role', 'department', 'designation')
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'first_name', 'last_name', 'role', 'department', 'designation')
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'date_of_birth', 'gender', 'address', 'emergency_contact_name',
+            'emergency_contact_relationship', 'emergency_contact_phone',
+            'emergency_contact_address', 'blood_group', 'nationality',
+            'marital_status', 'religion', 'avatar'
+        ]
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'address': forms.Textarea(attrs={'rows': 3}),
+            'emergency_contact_address': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ['document_type', 'title', 'file']
+        widgets = {
+            'file': forms.FileInput(attrs={'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png'})
+        }
 
 class EmployeeForm(forms.ModelForm):
     phone_regex = RegexValidator(
@@ -12,16 +46,8 @@ class EmployeeForm(forms.ModelForm):
     
     class Meta:
         model = Employee
-        fields = [
-            'date_of_birth', 'gender', 'marital_status', 'blood_group',
-            'nationality', 'religion', 'address', 'city', 'state',
-            'country', 'postal_code', 'emergency_contact_name',
-            'emergency_contact_relationship', 'emergency_contact_phone',
-            'emergency_contact_address', 'bank_account_number', 'bank_name',
-            'bank_branch', 'bank_ifsc_code', 'pan_number', 'aadhar_number',
-            'passport_number', 'passport_expiry', 'joining_date',
-            'probation_period', 'notice_period', 'is_active'
-        ]
+        fields = '__all__'
+        exclude = ['user']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'passport_expiry': forms.DateInput(attrs={'type': 'date'}),
@@ -48,11 +74,11 @@ class EmployeeDocumentForm(forms.ModelForm):
 class WorkHistoryForm(forms.ModelForm):
     class Meta:
         model = WorkHistory
-        fields = ['company_name', 'designation', 'start_date', 'end_date', 'is_current', 'job_description']
+        fields = ['company', 'position', 'start_date', 'end_date', 'description']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
-            'job_description': forms.Textarea(attrs={'rows': 3}),
+            'description': forms.Textarea(attrs={'rows': 3}),
         }
     
     def clean(self):

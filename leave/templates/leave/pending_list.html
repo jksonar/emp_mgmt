@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pending Leave Applications{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Pending Leave Applications</h1>
+            <a href="{% url 'leave:application_list' %}" class="btn btn-secondary">View All Applications</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Pending Applications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Duration</th>
+                                    <th>Applied On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in object_list %}
+                                <tr>
+                                    <td>{{ application.employee.get_full_name }}</td>
+                                    <td>{{ application.leave_type.name }}</td>
+                                    <td>{{ application.start_date|date:"d M Y" }}</td>
+                                    <td>{{ application.end_date|date:"d M Y" }}</td>
+                                    <td>{{ application.days }} day(s)</td>
+                                    <td>{{ application.created_at|date:"d M Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'leave:application_detail' application.pk %}" class="btn btn-sm btn-info">View</a>
+                                        {% if user.is_superuser or user.is_staff %}
+                                        <a href="{% url 'leave:approve_leave' application.pk %}" class="btn btn-sm btn-success">Approve</a>
+                                        <a href="{% url 'leave:reject_leave' application.pk %}" class="btn btn-sm btn-danger">Reject</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">No pending leave applications found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.table').DataTable({
+            "order": [[6, "desc"]],
+            "pageLength": 25,
+            "language": {
+                "search": "Filter:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "Showing 0 to 0 of 0 entries",
+                "infoFiltered": "(filtered from _MAX_ total entries)"
+            }
+        });
+    });
+</script>
+{% endblock %} 

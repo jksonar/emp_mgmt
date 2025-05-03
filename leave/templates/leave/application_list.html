@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leave Applications{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Leave Applications</h1>
+            {% if user.is_hr_manager %}
+            <a href="{% url 'leave:pending_list' %}" class="btn btn-primary">View Pending Applications</a>
+            {% endif %}
+            <a href="{% url 'leave:application_create' %}" class="btn btn-success">Apply for Leave</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">My Leave Applications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Applied On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in object_list %}
+                                <tr>
+                                    <td>{{ application.leave_type.name }}</td>
+                                    <td>{{ application.start_date|date:"d M Y" }}</td>
+                                    <td>{{ application.end_date|date:"d M Y" }}</td>
+                                    <td>{{ application.days }} day(s)</td>
+                                    <td>
+                                        <span class="badge {% if application.status == 'approved' %}bg-success
+                                                         {% elif application.status == 'rejected' %}bg-danger
+                                                         {% elif application.status == 'cancelled' %}bg-secondary
+                                                         {% else %}bg-warning{% endif %}">
+                                            {{ application.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ application.created_at|date:"d M Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'leave:application_detail' application.pk %}" class="btn btn-sm btn-info">View</a>
+                                        {% if application.status == 'pending' %}
+                                            <a href="{% url 'leave:application_update' application.pk %}" class="btn btn-sm btn-primary">Update</a>
+                                            <a href="{% url 'leave:application_delete' application.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">No leave applications found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.table').DataTable({
+            "order": [[5, "desc"]],
+            "pageLength": 25,
+            "language": {
+                "search": "Filter:",
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "Showing 0 to 0 of 0 entries",
+                "infoFiltered": "(filtered from _MAX_ total entries)"
+            }
+        });
+    });
+</script>
+{% endblock %} 
