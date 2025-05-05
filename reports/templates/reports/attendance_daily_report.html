@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Daily Attendance Report{% endblock %}
+{% block content %}
+<h2>Attendance Report for {{ date }}</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in attendances %}
+        <tr>
+            <td>{{ record.employee.employee_id }}</td>
+            <td>{{ record.employee.get_full_name }}</td>
+            <td>{{ record.status }}</td>
+            <td>{{ record.check_in }}</td>
+            <td>{{ record.check_out }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

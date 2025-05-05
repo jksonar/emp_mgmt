@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Employee Payroll Report</h2>
+<ul>
+  {% for payroll in payrolls %}
+    <li>{{ payroll.employee }} - {{ payroll.month }} - {{ payroll.amount }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

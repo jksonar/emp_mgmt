@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Attrition Report{% endblock %}
+{% block content %}
+<h2>Attrition Report (Last 12 Months)</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Leaving Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for employee in attritions %}
+        <tr>
+            <td>{{ employee.employee_id }}</td>
+            <td>{{ employee.get_full_name }}</td>
+            <td>{{ employee.department.name }}</td>
+            <td>{{ employee.date_of_leaving }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

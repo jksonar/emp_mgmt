@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Monthly Payroll Report - {{ month }}/{{ year }}</h2>
+<ul>
+  {% for payroll in payrolls %}
+    <li>{{ payroll.employee }} - {{ payroll.amount }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

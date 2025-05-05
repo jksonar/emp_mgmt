@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Payroll Detail</h2>
+<p>Employee: {{ payroll.employee }}</p>
+<p>Month: {{ payroll.month }}</p>
+<p>Status: {{ payroll.status }}</p>
+
+<a href="{% url 'payroll:payroll_update' payroll.pk %}">Edit</a>
+<a href="{% url 'payroll:payroll_delete' payroll.pk %}">Delete</a>
+<a href="{% url 'payroll:approve_payroll' payroll.pk %}">Approve</a>
+<a href="{% url 'payroll:generate_payslip' payroll.pk %}">Generate Payslip</a>
+{% endblock %}

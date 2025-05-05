@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Leave Balance Report{% endblock %}
+{% block content %}
+<h2>Leave Balance Report</h2>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="employee_id" class="form-control" placeholder="Employee ID" value="{{ request.GET.employee_id }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Employee</th>
+            <th>Annual Leave</th>
+            <th>Sick Leave</th>
+            <th>Casual Leave</th>
+            <th>Other Leave</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in leave_balances %}
+        <tr>
+            <td>{{ record.employee.full_name }}</td>
+            <td>{{ record.annual_leave }}</td>
+            <td>{{ record.sick_leave }}</td>
+            <td>{{ record.casual_leave }}</td>
+            <td>{{ record.other_leave }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">No leave balance records found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

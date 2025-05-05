@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Payroll List</h2>
+<a href="{% url 'payroll:payroll_create' %}">Add Payroll</a>
+<ul>
+  {% for payroll in payrolls %}
+    <li>
+      <a href="{% url 'payroll:payroll_detail' payroll.pk %}">
+        {{ payroll.employee }} - {{ payroll.month }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Employee Payroll Report{% endblock %}
+{% block content %}
+<h2>Employee Payroll Report</h2>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="employee_id" class="form-control" placeholder="Employee ID" value="{{ employee_id }}">
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Month</th>
+            <th>Amount</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payroll in payrolls %}
+        <tr>
+            <td>{{ payroll.month }}</td>
+            <td>{{ payroll.amount }}</td>
+            <td>{{ payroll.status }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No results found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

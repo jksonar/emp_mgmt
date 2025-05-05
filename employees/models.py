@@ -33,6 +33,7 @@ class CustomUser(AbstractUser):
     department = models.ForeignKey('departments.Department', on_delete=models.SET_NULL, null=True, blank=True)
     designation = models.ForeignKey('departments.Designation', on_delete=models.SET_NULL, null=True, blank=True)
     date_of_joining = models.DateField(null=True, blank=True)
+    date_of_leaving = models.DateField(null=True, blank=True)
     salary_structure = models.ForeignKey('payroll.SalaryStructure', on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     two_factor_enabled = models.BooleanField(default=False)
