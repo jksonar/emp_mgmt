@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Performance Goals</h2>
+<a href="{% url 'performance:goal_create' %}" class="btn btn-primary mb-2">Add Goal</a>
+<ul class="list-group">
+  {% for goal in goals %}
+    <li class="list-group-item">
+      <a href="{% url 'performance:goal_detail' goal.pk %}">{{ goal }}</a>
+    </li>
+  {% empty %}
+    <li class="list-group-item">No goals set.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

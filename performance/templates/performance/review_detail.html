@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Review Details</h2>
+<p><strong>Employee:</strong> {{ review.employee }}</p>
+<p><strong>Status:</strong> {{ review.status }}</p>
+<p><strong>Submitted At:</strong> {{ review.submitted_at }}</p>
+<a href="{% url 'performance:review_update' review.pk %}" class="btn btn-warning">Edit</a>
+<a href="{% url 'performance:review_submit' review.pk %}" class="btn btn-primary">Submit</a>
+<a href="{% url 'performance:review_feedback' review.pk %}" class="btn btn-info">Give Feedback</a>
+{% endblock %}

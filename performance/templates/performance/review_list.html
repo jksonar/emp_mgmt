@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Performance Reviews</h2>
+<a href="{% url 'performance:review_create' %}" class="btn btn-primary mb-2">New Review</a>
+<ul class="list-group">
+  {% for review in reviews %}
+    <li class="list-group-item">
+      <a href="{% url 'performance:review_detail' review.pk %}">{{ review }}</a>
+    </li>
+  {% empty %}
+    <li class="list-group-item">No reviews available.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

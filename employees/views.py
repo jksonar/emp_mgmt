@@ -181,7 +181,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.info(request, 'You have been logged out.')
-    return redirect('login')
+    return redirect('employees:login')
 
 # @login_required
 # def profile(request):
@@ -364,3 +364,51 @@ def home(request):
         ).order_by('-created_at')[:5]
     
     return render(request, 'employees/home.html', context)
+
+@login_required
+def setup_2fa(request):
+    """Setup two-factor authentication"""
+    if request.method == 'POST':
+        secret = pyotp.random_base32()
+        request.user.two_factor_secret = secret
+        request.user.save()
+        
+        # Generate QR code URL
+        totp = pyotp.TOTP(secret)
+        qr_code_url = totp.provisioning_uri(request.user.email, issuer_name="Employee Management System")
+        
+        return render(request, 'users/setup_2fa.html', {
+            'qr_code_url': qr_code_url,
+            'secret': secret
+        })
+    
+    return render(request, 'users/setup_2fa.html')
+
+@login_required
+def verify_2fa(request):
+    """Verify two-factor authentication setup"""
+    if request.method == 'POST':
+        token = request.POST.get('token')
+        secret = request.user.two_factor_secret
+        
+        if pyotp.TOTP(secret).verify(token):
+            request.user.two_factor_enabled = True
+            request.user.save()
+            messages.success(request, 'Two-factor authentication enabled successfully.')
+            return redirect('users:profile')
+        else:
+            messages.error(request, 'Invalid token. Please try again.')
+    
+    return render(request, 'users/verify_2fa.html')
+
+@login_required
+def disable_2fa(request):
+    """Disable two-factor authentication"""
+    if request.method == 'POST':
+        request.user.two_factor_enabled = False
+        request.user.two_factor_secret = ''
+        request.user.save()
+        messages.success(request, 'Two-factor authentication disabled successfully.')
+        return redirect('users:profile')
+    
+    return render(request, 'users/disable_2fa.html')

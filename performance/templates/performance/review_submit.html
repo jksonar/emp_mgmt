@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Submit Review</h2>
+<p>Are you sure you want to submit this review?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit" class="btn btn-primary">Yes, Submit</button>
+  <a href="{% url 'performance:review_detail' review.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

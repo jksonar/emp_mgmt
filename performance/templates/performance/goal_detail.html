@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Goal Detail</h2>
+<p><strong>Goal:</strong> {{ goal }}</p>
+<p><strong>Status:</strong> {{ goal.status }}</p>
+<a href="{% url 'performance:goal_update' goal.pk %}" class="btn btn-warning">Edit</a>
+<a href="{% url 'performance:goal_progress_update' goal.pk %}" class="btn btn-info">Update Progress</a>
+{% endblock %}
